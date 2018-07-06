@@ -22,9 +22,32 @@ class SubscriptionsControllerTest < ActionDispatch::IntegrationTest
     assert_response 201
   end
 
-  #test "should show subscription" do
-   # get subscription_url(@subscription), as: :json
-    #assert_response :success
-  #end
+  test "should not create subscription with insufficient funds" do
+    VCR.insert_cassette 'payment_declined'
+    post subscriptions_url, params: { subscription: { customer_name: @subscription.customer_name } }, as: :json
+    VCR.eject_cassette
+
+    assert_response 402
+
+  end
+
+  test "should not create subscription with wrong credentials" do
+    VCR.insert_cassette 'payment_unauthorized'
+    post subscriptions_url, params: { subscription: { customer_name: @subscription.customer_name } }, as: :json
+    VCR.eject_cassette
+
+    assert_response 401
+
+  end
+
+  test "should not create subscription when timeout" do
+    VCR.insert_cassette 'payment_timeout'
+    post subscriptions_url, params: { subscription: { customer_name: @subscription.customer_name } }, as: :json
+    VCR.eject_cassette
+
+    assert_response 503
+
+  end
+
 
 end
