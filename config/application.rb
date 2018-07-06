@@ -27,6 +27,9 @@ module ChargifyTest
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
 
+    config.autoload_paths << Rails.root.join("lib")
+    config.eager_load_paths << Rails.root.join("lib")
+
     # Ideally user and password should not be hardcoded, instead read from env variable
     config.x.payment_api.user = 'billing'
     config.x.payment_api.password = 'gateway'
