@@ -26,5 +26,10 @@ module ChargifyTest
     # Middleware like session, flash, cookies can be added back manually.
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
+
+    # Ideally user and password should not be hardcoded, instead read from env variable
+    config.x.payment_api.user = 'billing'
+    config.x.payment_api.password = 'gateway'
+    config.x.payment_api.retries = 10
   end
 end
