@@ -1,5 +1,7 @@
 class Luhn
   def self.valid?(str)
+    return false unless str
+    str = str.to_s if str.is_a? Integer
     #strip spaces
     str.gsub!(/\s+/, "")
     #false if there are non digits and shorter than 1

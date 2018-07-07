@@ -6,20 +6,22 @@ class SubscriptionsController < ApplicationController
   end
 
   def create
-    if payment[:code] == 200
-      @subscription = Subscription.new(subscription_params.merge(payment_id: payment[:body][:id]))
+    credit_card = params[:subscription][:credit_card]
+    payment_response = payment(credit_card)
+    if payment_response[:code] == 200
+      @subscription = Subscription.new(subscription_params.merge(payment_id: payment_response[:body][:id]))
       if @subscription.save
         render json: @subscription, status: :created, location: @subscription
       else
         render json: @subscription.errors, status: :unprocessable_entity
       end
     else
-      render json: payment[:body], status: payment[:code]
+      render json: payment_response[:body], status: payment_response[:code]
     end
   end
 
-  def payment
-    @payment ||= PaymentService.new.charge
+  def payment(credit_card)
+    @payment ||= PaymentService.new.charge({credit_card: credit_card})
   end
 
   private

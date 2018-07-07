@@ -1,6 +1,13 @@
 require 'test_helper'
 
 class PaymentServiceTest < ActiveSupport::TestCase
+  describe PaymentService do
+
+    before do
+      valid_visa = 4111111111111111
+      valid_mastercard = 5555555555554444
+      @charge_options = {credit_card: valid_visa}
+    end
 
     describe "default attributes" do
       it "must include httparty methods" do
@@ -21,8 +28,15 @@ class PaymentServiceTest < ActiveSupport::TestCase
 
       it "returns a succesful payment" do
         paid = {:body=>{:id=>"2e225be0b33a2b01", :paid=>true, :failure_message=>nil}, :code=>200}
-        PaymentService.new.charge.must_equal paid
+        PaymentService.new.charge(@charge_options).must_equal paid
 
+      end
+    end
+
+    describe "Invalid" do
+      it "returns a succesful payment" do
+        invalid = {:body=>"Invalid CC", :code=>406}
+        PaymentService.new.charge({credit_card: 8273123273520569}).must_equal invalid
       end
     end
 
@@ -36,7 +50,7 @@ class PaymentServiceTest < ActiveSupport::TestCase
 
       it "returns insufficient funds" do
         declined = {:body=>{:id=>"487db7e8e59d8a44", :paid=>false, :failure_message=>"insufficient_funds"}, :code=>402}
-        PaymentService.new.charge.must_equal declined
+        PaymentService.new.charge(@charge_options).must_equal declined
       end
     end
 
@@ -51,7 +65,7 @@ class PaymentServiceTest < ActiveSupport::TestCase
 
       it "returns 503 response" do
         timeout = {:code=>503, :body=>"Service Unavailable"}
-        PaymentService.new.charge.must_equal timeout
+        PaymentService.new.charge(@charge_options).must_equal timeout
       end
     end
 
@@ -66,7 +80,9 @@ class PaymentServiceTest < ActiveSupport::TestCase
 
       it "returns unauthorized response" do
         unauthorized = {:code=>401, :body=>"Not authorized"}
-        PaymentService.new.charge.must_equal unauthorized
+        PaymentService.new.charge(@charge_options).must_equal unauthorized
       end
     end
+
+  end
 end

@@ -10,6 +10,7 @@ class PaymentService
   end
 
   def charge(options = {})
+    return {body: "Invalid CC", code: 406 } unless Luhn.valid?(options[:credit_card])
     max_retries = Rails.configuration.x.payment_api.retries
     options.merge!({ basic_auth: @auth })
     begin
